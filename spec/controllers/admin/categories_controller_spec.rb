@@ -63,4 +63,22 @@ describe Admin::CategoriesController do
     assert_raise(ActiveRecord::RecordNotFound) { Category.find(test_id) }
   end
   
+  
+  describe "test_new" do
+    before(:each) do
+      get :new
+    end
+
+    it 'should render template new' do
+      assert_template 'new'
+    end
+
+    it 'should create new category' do
+      post :new, category: { name: 'Food', keywords: 'Cookies, Chips', permalink: 'food', description: 'things we eat' }
+      assert_response :redirect, action: 'index'
+      category = Category.find_by_name('Food')
+      assert_not_nil category
+    end
+  end
+  
 end
