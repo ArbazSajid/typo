@@ -29,6 +29,7 @@ class Admin::ContentController < Admin::BaseController
 
   def edit
     @article = Article.find(params[:id])
+    @is_admin = current_user.admin?
     unless @article.access_by? current_user
       redirect_to :action => 'index'
       flash[:error] = _("Error, you are not allowed to perform this action")
@@ -50,6 +51,23 @@ class Admin::ContentController < Admin::BaseController
     @record.destroy
     flash[:notice] = _("This article was deleted successfully")
     redirect_to :action => 'index'
+  end
+  
+  
+  def merge
+    unless current_user.admin?
+      flash[:error] = "You don't have access rights to merge article"
+      redirect_to action: :index
+    end
+    article = Article.find_by_id(params[:id])
+    new_article=article.merge_with(params[:merge_with])
+    if new_article
+      flash[:notice] = "Articles merged successfully"
+      redirect_to action: :index
+    else
+      flash[:notice] = "Articles were not merged successfully"
+      redirect_to action: :edit, id: params[:id]
+    end
   end
 
   def insert_editor

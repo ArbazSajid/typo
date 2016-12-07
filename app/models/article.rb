@@ -340,6 +340,20 @@ class Article < Content
       end
     end
   end
+  
+  def merge_with(other_article_id)
+    other_article = Article.find_by_id(other_article_id)
+    if other_article.nil? || other_article.id==self.id
+      nil
+    else
+      self.body=self.body+other_article.body
+      self.save!
+      other_article.comments.update_all(article_id: self.id)
+      other_article.reload
+      other_article.destroy
+      self
+    end
+  end
 
   def interested_users
     User.find_all_by_notify_on_new_articles(true)
@@ -466,4 +480,5 @@ class Article < Content
     to = to - 1 # pull off 1 second so we don't overlap onto the next day
     return from..to
   end
+  
 end
